@@ -1,0 +1,40 @@
+{% extends "network/layout.html" %}
+{% block body %}
+<h1>
+    <div>Visitng</div>"{{ idName }}"
+</h1>
+{% if idName != currentUser and not isFollowing %}
+<form action="{% url 'follow' name=idName %}" method="post">
+    {% csrf_token %}
+    <button class="btn btn-primary mb-3 mx-3" type="submit" name="followButton">
+        Follow
+    </button>
+</form>
+{% elif isFollowing %}
+<form action="{% url 'unfollow' name=idName %}" method='post'>
+    {% csrf_token %}
+    <button class="btn btn-secondary mx-3 mb-3" type="submit" name="unfollowButton">
+        Unfollow
+    </button>
+</form>
+{% endif %}
+<h3>Followers: {{ followerCount }}</h3>
+<h3>Following: {{followingCount}}</h3>
+{% for post in userPosts %}
+<div class="card" style="width: 75vw">
+    <div class="card-body" id="card-body-{{post.id}}">
+        <h5 class="card-title">
+            <a href="{% url 'profile' name=post.poster %}">{{post.poster}}</a>
+        </h5>
+        <h6 class="card-subtitle mb-2 text-body-secondary text-secondary">
+            {{post.posted}}
+        </h6>
+        <p class="card-text mb-1" id="post-description">{{ post.description }}</p>
+        <p class="m">Likes</p>
+        {% if user.is_authenticated and user.pk == post.poster.pk %}
+        <button class="edit-btn" data-post-id="{{ post.id }}">Edit</button>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

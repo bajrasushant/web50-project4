@@ -1,0 +1,16 @@
+{% extends "network/layout.html" %}
+{% block body %}
+{% if user.is_authenticated%}
+
+<div class="card">
+  <div class="card-header">New Post</div>
+  <div class="card-body">
+    <form action="{% url 'post' %}" method="post">
+      {% csrf_token %}
+      <textarea class="form-control mb-2" id="postbody" name="postbody" style="height: 100px"></textarea>
+      <input id="post" name="post" type="submit" class="btn btn-primary" value="Post" />
+    </form>
+  </div>
+
+  {% endif %}
+  {% endblock %}
