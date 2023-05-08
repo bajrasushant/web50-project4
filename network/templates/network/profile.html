@@ -21,20 +21,53 @@
 <h3>Followers: {{ followerCount }}</h3>
 <h3>Following: {{followingCount}}</h3>
 {% for post in userPosts %}
-<div class="card" style="width: 75vw">
+<div class="card" style="width: 75vw" data-cardid="{{post.id}}">
     <div class="card-body" id="card-body-{{post.id}}">
-        <h5 class="card-title">
-            <a href="{% url 'profile' name=post.poster %}">{{post.poster}}</a>
-        </h5>
-        <h6 class="card-subtitle mb-2 text-body-secondary text-secondary">
-            {{post.posted}}
-        </h6>
-        <p class="card-text mb-1" id="post-description">{{ post.description }}</p>
-        <p class="m">Likes</p>
-        {% if user.is_authenticated and user.pk == post.poster.pk %}
-        <button class="edit-btn" data-post-id="{{ post.id }}">Edit</button>
-        {% endif %}
+    <h5 class="card-title">
+      <a href="{% url 'profile' name=post.poster %}">{{post.poster}}</a>
+    </h5>
+    <h6 class="card-subtitle mb-2 text-body-secondary text-secondary">
+      {{post.posted}}
+    </h6>
+    <p class="card-text mb-1" id="post-descr/iption-{{ post.id }}">{{ post.description }}</p>
+    <p class="text-muted" id="like-{{ post.id }}">Likes: {{ post.likes.count }}</p>
+    {% if user.is_authenticated %}
+    {% if post.liked %}
+    <button id="like-btn-{{post.id}}" class="btn btn-outline-danger" type="button" onclick="likeHandler({{post.id}}, {{ post.liked|lower }})">
+            Unlike
+        </button>
+    {% else %}
+    <button id="like-btn-{{post.id}}" class="btn btn-outline-primary" type="button" onclick="likeHandler({{post.id}}, {{post.liked|lower}})">
+            Like
+        </button>
+    {% endif %}
+    {% endif %}
+    {% if user.is_authenticated and user.pk == post.poster.pk %}
+    <!-- Button trigger modal --> 
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit-modal-{{post.id}}">
+Edit
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="edit-modal-{{post.id}}" tabindex="-1" role="dialog" aria-labelledby="#edit-modal-{{post.id}}" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <textarea rows="5" required class="form-control" id="textarea-{{post.id}}">{{post.description}}</textarea> </div> 
+      <div class="modal-footer"> 
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> 
+          <button type="submit" class="btn btn-primary" onclick="saveHandler({{post.id}})">Save changes</button>
+      </div>
     </div>
+  </div>
+  </div>
+  {% endif %}
 </div>
 {% endfor %}
 {% endblock %}

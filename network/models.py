@@ -15,6 +15,7 @@ class Post(models.Model):
     description = models.TextField()
     poster = models.ForeignKey(User, on_delete=models.CASCADE)
     posted = models.DateTimeField(auto_now_add=True)
-
+    likes = models.ManyToManyField(User, related_name="liked_posts")
+    liked = models.BooleanField(default=False)
     def __str__(self):
-        return f"{self.poster} posted on {self.posted}"
+        return f"{self.poster} posted on {self.posted} has {self.likes.count()} likes."

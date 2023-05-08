@@ -1,9 +1,12 @@
+import json
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Post
 
@@ -140,3 +143,31 @@ def following_view(request):
     return render(
         request, "network/index.html", {"posts": followingPosts, "title": "Following Peoples"}
     )
+
+@csrf_exempt
+@login_required
+def edit(request, id):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        editedDescription = data.get("newEdit", "")
+        post = Post.objects.get(pk=id)
+        post.description = editedDescription
+        post.save()
+        return JsonResponse({"message": "edited successfully", "data": data["newEdit"]})
+    else:
+        return JsonResponse({"message": "need POST request"})
+
+@csrf_exempt
+@login_required
+def posts(request, id):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        post = Post.objects.get(pk=id)
+        if data["liked"] == True:
+           post.liked = data["liked"]
+           post.likes.add(request.user)
+        else:
+            post.liked = data["liked"]
+            post.likes.remove(request.user)
+        post.save()
+        return JsonResponse({"message": "success", "likes_count": post.likes.count()})
